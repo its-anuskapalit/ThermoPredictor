@@ -24,4 +24,4 @@
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/ThermoPredictor.git
+   git clone https://github.com/its-anuskapalit/ThermoPredictor.git
