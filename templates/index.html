@@ -1,0 +1,1392 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempSense AI | Advanced Anomaly Detection</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌡️</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    
+    <!-- JS Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js"></script>
+    
+    <style>
+        :root {
+            /* Color Scheme - Light Mode */
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3a0ca3;
+            --secondary-color: #4cc9f0;
+            --accent-color: #7209b7;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --danger-color: #e63946;
+            --info-color: #457b9d;
+            
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e1e2f;
+            --sidebar-text: #e9ecef;
+            --sidebar-active: #4cc9f0;
+            
+            --border-radius: 0.75rem;
+            --border-radius-sm: 0.5rem;
+            --border-radius-lg: 1rem;
+            
+            --box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+            --box-shadow-lg: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+            
+            --transition-speed: 0.3s;
+            
+            /* Dark Mode (applied via JS) */
+            --dark-bg: #121212;
+            --dark-card-bg: #1e1e2f;
+            --dark-text: #e9ecef;
+            --dark-text-secondary: #ced4da;
+            --dark-border: #343a40;
+        }
+        
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            transition: all var(--transition-speed);
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+        }
+        
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        
+        .sidebar-top {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--sidebar-text);
+            font-weight: 700;
+            font-size: 1.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--sidebar-text);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all var(--transition-speed);
+        }
+        
+        .toggle-sidebar:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all var(--transition-speed);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--sidebar-active);
+            border-left: 3px solid var(--sidebar-active);
+        }
+        
+        .nav-link i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+            text-align: center;
+        }
+        
+        .nav-label {
+            transition: opacity var(--transition-speed);
+        }
+        
+        .sidebar-collapsed .nav-label {
+            opacity: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            transition: all var(--transition-speed);
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary-light);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .dark-mode-toggle {
+            font-size: 1.25rem;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        
+        .card:hover {
+            box-shadow: var(--box-shadow-lg);
+            transform: translateY(-3px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-title i {
+            color: var(--primary-color);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .card-icon {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+        
+        .card-icon:hover {
+            color: var(--primary-color);
+        }
+        
+        .card-body {
+            height: calc(100% - 3rem);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin-top: 1rem;
+        }
+        
+        .chart-container.large {
+            height: 300px;
+        }
+        
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all var(--transition-speed);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.5;
+            border-radius: var(--border-radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-icon {
+            padding: 0.75rem;
+            border-radius: 50%;
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        
+        .table th, .table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 999px;
+        }
+        
+        .badge-warning {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .badge-success {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-color);
+        }
+        
+        .badge-danger {
+            background-color: rgba(230, 57, 70, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .badge-info {
+            background-color: rgba(69, 123, 157, 0.1);
+            color: var(--info-color);
+        }
+        
+        /* Result Cards */
+        .result-card {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 1.5rem;
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        .result-card.show {
+            display: block;
+        }
+        
+        .result-card.success {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .result-card.warning {
+            background-color: rgba(247, 37, 133, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .result-card.danger {
+            background-color: rgba(230, 57, 70, 0.1);
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.25rem;
+            box-shadow: var(--box-shadow);
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow-lg);
+        }
+        
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .stat-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            gap: 0.25rem;
+        }
+        
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger-color);
+        }
+        
+        /* Loader */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+            display: none;
+        }
+        
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+        }
+        
+        .toast {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: white;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--box-shadow-lg);
+            margin-bottom: 1rem;
+            animation: slideInRight 0.3s ease-out;
+            transition: all var(--transition-speed);
+            max-width: 350px;
+        }
+        
+        .toast.hide {
+            animation: slideOutRight 0.3s ease-in forwards;
+        }
+        
+        .toast-icon {
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .toast-success .toast-icon {
+            color: var(--success-color);
+        }
+        
+        .toast-warning .toast-icon {
+            color: var(--warning-color);
+        }
+        
+        .toast-danger .toast-icon {
+            color: var(--danger-color);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.25rem;
+            margin-left: 1rem;
+            padding: 0;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+        }
+        
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode .card,
+        body.dark-mode .stat-card,
+        body.dark-mode .action-btn,
+        body.dark-mode .form-control {
+            background-color: var(--dark-card-bg);
+            border-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode .card-title,
+        body.dark-mode .stat-value,
+        body.dark-mode .header-left h1 {
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode .text-secondary,
+        body.dark-mode .stat-title,
+        body.dark-mode .form-label {
+            color: var(--dark-text-secondary);
+        }
+        
+        body.dark-mode .table th,
+        body.dark-mode .table td {
+            border-color: var(--dark-border);
+        }
+        
+        body.dark-mode .table th {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        body.dark-mode .table tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .nav-label {
+                display: none;
+            }
+            
+            .sidebar .logo span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-collapsed {
+                transform: translateX(-100%);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <div class="logo">
+                    <i class="fas fa-thermometer-half"></i>
+                    <span>TempSense AI</span>
+                </div>
+                <button class="toggle-sidebar" id="toggleSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-links">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="nav-label">Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-database"></i>
+                        <span class="nav-label">Data Sources</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cogs"></i>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span class="nav-label">Help</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <h1>Temperature Anomaly Detection</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="action-btn dark-mode-toggle" id="darkModeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3 class="stat-title">Total Sensors</h3>
+                    <div class="stat-value">248</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> 8% from last month
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">Active Alerts</h3>
+                    <div class="stat-value">12</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-up"></i> 3% from yesterday
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">Avg. Temperature</h3>
+                    <div class="stat-value">22.4°C</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-down"></i> 1.2°C from yesterday
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">Anomalies</h3>
+                    <div class="stat-value">7</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-up"></i> 2 new today
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            Temperature Trends
+                        </h2>
+                        <div class="card-actions">
+                            <i class="fas fa-download card-icon"></i>
+                            <i class="fas fa-expand card-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container large">
+                            <canvas id="temperatureChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Recent Alerts
+                        </h2>
+                        <div class="card-actions">
+                            <i class="fas fa-sync card-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sensor ID</th>
+                                        <th>Location</th>
+                                        <th>Time</th>
+                                        <th>Severity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>SEN-1024</td>
+                                        <td>Server Room A</td>
+                                        <td>10:23 AM</td>
+                                        <td><span class="badge badge-warning">Warning</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>SEN-2187</td>
+                                        <td>Cold Storage 3</td>
+                                        <td>09:15 AM</td>
+                                        <td><span class="badge badge-danger">Critical</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>SEN-3421</td>
+                                        <td>Production Line 2</td>
+                                        <td>08:47 AM</td>
+                                        <td><span class="badge badge-info">Info</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>SEN-1856</td>
+                                        <td>HVAC System</td>
+                                        <td>Yesterday</td>
+                                        <td><span class="badge badge-success">Resolved</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-search"></i>
+                        Anomaly Detection
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form id="anomalyForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Data Source</label>
+                                <select class="form-control" id="dataSource
+                                <select class="form-control" id="dataSource">
+                                    <option value="sensor-data">Sensor Data</option>
+                                    <option value="historical">Historical Records</option>
+                                    <option value="batch-upload">Batch Upload</option>
+                                    <option value="live-stream">Live Stream</option>
+                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="form-label">Time Range</label>
+                                                                <select class="form-control" id="timeRange">
+                                                                    <option value="day">Last 24 Hours</option>
+                                                                    <option value="week">Last 7 Days</option>
+                                                                    <option value="month">Last 30 Days</option>
+                                                                    <option value="custom">Custom Range</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="form-label">Sensitivity</label>
+                                                                <select class="form-control" id="sensitivity">
+                                                                    <option value="low">Low</option>
+                                                                    <option value="medium" selected>Medium</option>
+                                                                    <option value="high">High</option>
+                                                                    <option value="custom">Custom</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="form-label">Algorithm</label>
+                                                                <select class="form-control" id="algorithm">
+                                                                    <option value="isolation-forest">Isolation Forest</option>
+                                                                    <option value="one-class-svm">One-Class SVM</option>
+                                                                    <option value="local-outlier">Local Outlier Factor</option>
+                                                                    <option value="deep-learning">Deep Learning</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="fas fa-search"></i> Detect Anomalies
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <div class="result-card warning show" id="resultCard">
+                                                        <h3>Anomaly Detection Results</h3>
+                                                        <p>The analysis detected <strong>7 anomalies</strong> in the temperature data. These abnormal patterns may indicate equipment malfunction or environmental issues.</p>
+                                                        <div class="chart-container">
+                                                            <canvas id="anomalyChart"></canvas>
+                                                        </div>
+                                                        <div class="table-responsive">
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Timestamp</th>
+                                                                        <th>Sensor ID</th>
+                                                                        <th>Value</th>
+                                                                        <th>Confidence</th>
+                                                                        <th>Type</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>2025-04-23 09:15:24</td>
+                                                                        <td>SEN-2187</td>
+                                                                        <td>32.7°C</td>
+                                                                        <td>97%</td>
+                                                                        <td><span class="badge badge-danger">Spike</span></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>2025-04-23 08:42:18</td>
+                                                                        <td>SEN-1024</td>
+                                                                        <td>28.3°C</td>
+                                                                        <td>89%</td>
+                                                                        <td><span class="badge badge-warning">Drift</span></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>2025-04-22 23:05:47</td>
+                                                                        <td>SEN-3421</td>
+                                                                        <td>18.2°C</td>
+                                                                        <td>92%</td>
+                                                                        <td><span class="badge badge-info">Drop</span></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </main>
+                                    </div>
+                                    
+                                    <!-- Loader -->
+                                    <div class="loader-container" id="loaderContainer">
+                                        <div class="loader"></div>
+                                    </div>
+                                    
+                                    <!-- Toast Notifications -->
+                                    <div class="toast-container" id="toastContainer">
+                                        <!-- Toasts will be appended here -->
+                                    </div>
+                                    
+                                    <script>
+                                        // Toggle sidebar
+                                        document.getElementById('toggleSidebar').addEventListener('click', function() {
+                                            document.getElementById('sidebar').classList.toggle('sidebar-collapsed');
+                                        });
+                                        
+                                        // Dark mode toggle
+                                        document.getElementById('darkModeToggle').addEventListener('click', function() {
+                                            document.body.classList.toggle('dark-mode');
+                                            
+                                            // Update icon
+                                            const icon = this.querySelector('i');
+                                            if (document.body.classList.contains('dark-mode')) {
+                                                icon.classList.remove('fa-moon');
+                                                icon.classList.add('fa-sun');
+                                            } else {
+                                                icon.classList.remove('fa-sun');
+                                                icon.classList.add('fa-moon');
+                                            }
+                                            
+                                            // Save preference
+                                            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+                                            
+                                            // Update charts
+                                            updateChartsTheme();
+                                        });
+                                        
+                                        // Check for saved dark mode preference
+                                        if (localStorage.getItem('darkMode') === 'true') {
+                                            document.body.classList.add('dark-mode');
+                                            document.querySelector('.dark-mode-toggle i').classList.remove('fa-moon');
+                                            document.querySelector('.dark-mode-toggle i').classList.add('fa-sun');
+                                        }
+                                        
+                                        // Temperature Chart
+                                        const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+                                        const temperatureChart = new Chart(temperatureCtx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: generateTimeLabels(24),
+                                                datasets: [
+                                                    {
+                                                        label: 'Server Room A',
+                                                        data: generateTemperatureData(24, 22, 2),
+                                                        borderColor: '#4361ee',
+                                                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                                                        tension: 0.4,
+                                                        fill: true
+                                                    },
+                                                    {
+                                                        label: 'Cold Storage 3',
+                                                        data: generateTemperatureData(24, 5, 1),
+                                                        borderColor: '#4cc9f0',
+                                                        backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                                                        tension: 0.4,
+                                                        fill: true
+                                                    },
+                                                    {
+                                                        label: 'Production Line 2',
+                                                        data: generateTemperatureData(24, 18, 3),
+                                                        borderColor: '#7209b7',
+                                                        backgroundColor: 'rgba(114, 9, 183, 0.1)',
+                                                        tension: 0.4,
+                                                        fill: true
+                                                    }
+                                                ]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                    }
+                                                },
+                                                scales: {
+                                                    x: {
+                                                        type: 'time',
+                                                        time: {
+                                                            unit: 'hour',
+                                                            displayFormats: {
+                                                                hour: 'HH:mm'
+                                                            }
+                                                        },
+                                                        grid: {
+                                                            display: false
+                                                        }
+                                                    },
+                                                    y: {
+                                                        beginAtZero: false,
+                                                        grid: {
+                                                            color: 'rgba(0, 0, 0, 0.05)'
+                                                        }
+                                                    }
+                                                },
+                                                interaction: {
+                                                    mode: 'index',
+                                                    intersect: false
+                                                }
+                                            }
+                                        });
+                                        
+                                        // Anomaly Chart
+                                        const anomalyCtx = document.getElementById('anomalyChart').getContext('2d');
+                                        const anomalyChart = new Chart(anomalyCtx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: generateTimeLabels(48),
+                                                datasets: [
+                                                    {
+                                                        label: 'Temperature',
+                                                        data: generateAnomalyData(48),
+                                                        borderColor: '#4361ee',
+                                                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                                                        tension: 0.4,
+                                                        fill: true
+                                                    },
+                                                    {
+                                                        label: 'Anomalies',
+                                                        data: generateAnomalyPoints(48),
+                                                        borderColor: '#f72585',
+                                                        backgroundColor: '#f72585',
+                                                        pointRadius: 6,
+                                                        pointHoverRadius: 8,
+                                                        showLine: false
+                                                    }
+                                                ]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'top',
+                                                    }
+                                                },
+                                                scales: {
+                                                    x: {
+                                                        type: 'time',
+                                                        time: {
+                                                            unit: 'hour',
+                                                            displayFormats: {
+                                                                hour: 'HH:mm'
+                                                            }
+                                                        },
+                                                        grid: {
+                                                            display: false
+                                                        }
+                                                    },
+                                                    y: {
+                                                        beginAtZero: false,
+                                                        grid: {
+                                                            color: 'rgba(0, 0, 0, 0.05)'
+                                                        }
+                                                    }
+                                                },
+                                                interaction: {
+                                                    mode: 'index',
+                                                    intersect: false
+                                                }
+                                            }
+                                        });
+                                        
+                                        // Update charts based on theme
+                                        function updateChartsTheme() {
+                                            const isDarkMode = document.body.classList.contains('dark-mode');
+                                            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+                                            const textColor = isDarkMode ? '#e9ecef' : '#6c757d';
+                                            
+                                            // Update temperature chart
+                                            temperatureChart.options.scales.y.grid.color = gridColor;
+                                            temperatureChart.options.scales.x.ticks = { color: textColor };
+                                            temperatureChart.options.scales.y.ticks = { color: textColor };
+                                            temperatureChart.options.plugins.legend.labels = { color: textColor };
+                                            temperatureChart.update();
+                                            
+                                            // Update anomaly chart
+                                            anomalyChart.options.scales.y.grid.color = gridColor;
+                                            anomalyChart.options.scales.x.ticks = { color: textColor };
+                                            anomalyChart.options.scales.y.ticks = { color: textColor };
+                                            anomalyChart.options.plugins.legend.labels = { color: textColor };
+                                            anomalyChart.update();
+                                        }
+                                        
+                                        // Initialize charts theme
+                                        updateChartsTheme();
+                                        
+                                        // Form submission
+                                        document.getElementById('anomalyForm').addEventListener('submit', function(e) {
+                                            e.preventDefault();
+                                            
+                                            // Show loader
+                                            document.getElementById('loaderContainer').style.display = 'flex';
+                                            
+                                            // Simulate processing
+                                            setTimeout(function() {
+                                                // Hide loader
+                                                document.getElementById('loaderContainer').style.display = 'none';
+                                                
+                                                // Show result
+                                                document.getElementById('resultCard').classList.add('show');
+                                                
+                                                // Show toast
+                                                showToast('Analysis Complete', 'Anomaly detection completed successfully. Found 7 potential issues.', 'success');
+                                                
+                                                // Update chart with new data
+                                                anomalyChart.data.datasets[0].data = generateAnomalyData(48);
+                                                anomalyChart.data.datasets[1].data = generateAnomalyPoints(48);
+                                                anomalyChart.update();
+                                            }, 1500);
+                                        });
+                                        
+                                        // Helper function to generate time labels
+                                        function generateTimeLabels(count) {
+                                            const now = new Date();
+                                            const labels = [];
+                                            
+                                            for (let i = count - 1; i >= 0; i--) {
+                                                const date = new Date(now);
+                                                date.setHours(date.getHours() - i);
+                                                labels.push(date);
+                                            }
+                                            
+                                            return labels;
+                                        }
+                                        
+                                        // Helper function to generate temperature data
+                                        function generateTemperatureData(count, baseline, variance) {
+                                            const data = [];
+                                            
+                                            for (let i = 0; i < count; i++) {
+                                                const random = Math.random() * variance * 2 - variance;
+                                                data.push(baseline + random);
+                                            }
+                                            
+                                            return data;
+                                        }
+                                        
+                                        // Helper function to generate anomaly data
+                                        function generateAnomalyData(count) {
+                                            const data = [];
+                                            const now = new Date();
+                                            
+                                            for (let i = count - 1; i >= 0; i--) {
+                                                const date = new Date(now);
+                                                date.setHours(date.getHours() - i);
+                                                
+                                                let value = 22 + Math.sin(i / 4) * 2 + (Math.random() * 1.5 - 0.75);
+                                                
+                                                // Introduce anomalies
+                                                if (i === 10 || i === 25 || i === 40) {
+                                                    value += 6;
+                                                }
+                                                if (i === 15 || i === 30) {
+                                                    value -= 4;
+                                                }
+                                                
+                                                data.push({
+                                                    x: date,
+                                                    y: value
+                                                });
+                                            }
+                                            
+                                            return data;
+                                        }
+                                        
+                                        // Helper function to generate anomaly points
+                                        function generateAnomalyPoints(count) {
+                                            const data = [];
+                                            const now = new Date();
+                                            
+                                            for (let i = count - 1; i >= 0; i--) {
+                                                const date = new Date(now);
+                                                date.setHours(date.getHours() - i);
+                                                
+                                                // Only add data points for anomalies
+                                                if (i === 10 || i === 15 || i === 25 || i === 30 || i === 40) {
+                                                    let value = 22 + Math.sin(i / 4) * 2;
+                                                    
+                                                    if (i === 10 || i === 25 || i === 40) {
+                                                        value += 6;
+                                                    }
+                                                    if (i === 15 || i === 30) {
+                                                        value -= 4;
+                                                    }
+                                                    
+                                                    data.push({
+                                                        x: date,
+                                                        y: value
+                                                    });
+                                                } else {
+                                                    data.push(null);
+                                                }
+                                            }
+                                            
+                                            return data;
+                                        }
+                                        
+                                        // Show toast notification
+                                        function showToast(title, message, type = 'info') {
+                                            const toastContainer = document.getElementById('toastContainer');
+                                            const toast = document.createElement('div');
+                                            toast.className = `toast toast-${type}`;
+                                            
+                                            let icon = 'info-circle';
+                                            if (type === 'success') icon = 'check-circle';
+                                            if (type === 'warning') icon = 'exclamation-triangle';
+                                            if (type === 'danger') icon = 'times-circle';
+                                            
+                                            toast.innerHTML = `
+                                                <div class="toast-icon"><i class="fas fa-${icon}"></i></div>
+                                                <div class="toast-content">
+                                                    <div class="toast-title">${title}</div>
+                                                    <div class="toast-message">${message}</div>
+                                                </div>
+                                                <button class="toast-close"><i class="fas fa-times"></i></button>
+                                            `;
+                                            
+                                            toastContainer.appendChild(toast);
+                                            
+                                            // Add event listener for close button
+                                            toast.querySelector('.toast-close').addEventListener('click', function() {
+                                                toast.classList.add('hide');
+                                                setTimeout(() => {
+                                                    toast.remove();
+                                                }, 300);
+                                            });
+                                            
+                                            // Auto close toast after 5 seconds
+                                            setTimeout(() => {
+                                                toast.classList.add('hide');
+                                                setTimeout(() => {
+                                                    toast.remove();
+                                                }, 300);
+                                            }, 5000);
+                                        }
+                                        
+                                        // Nav links
+                                        document.querySelectorAll('.nav-link').forEach(link => {
+                                            link.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                
+                                                // Remove active class from all links
+                                                document.querySelectorAll('.nav-link').forEach(l => {
+                                                    l.classList.remove('active');
+                                                });
+                                                
+                                                // Add active class to clicked link
+                                                this.classList.add('active');
+                                                
+                                                // Show toast for demo
+                                                showToast('Navigation', 'This is a demo interface. The selected section would load here.', 'info');
+                                            });
+                                        });
+                                    </script>
+                                </body>
+                                </html>
