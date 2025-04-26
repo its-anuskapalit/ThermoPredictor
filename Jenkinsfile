@@ -8,26 +8,16 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/its-anuskapalit/ThermoPredictor.git'
+                git branch: 'main', url: 'https://github.com/its-anuskapalit/ThermoPredictor.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${IMAGE_NAME}")
-                }
+                bat 'docker build -t anuskap/thermalmodel .'
             }
         }
 
-        stage('Deploy with Docker Compose') {
-            steps {
-                script {
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d'
-                }
-            }
-        }
     }
 
     post {
